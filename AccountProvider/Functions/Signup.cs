@@ -51,8 +51,8 @@ public class Signup(ILogger<Signup> logger, UserManager<UserAccount> userManager
                 {
                     var userAccount = new UserAccount
                     {
-                        FirstName = userRegistrationRequest.FirstName!,
-                        LastName = userRegistrationRequest.LastName!,
+                        FirstName = userRegistrationRequest.FirstName,
+                        LastName = userRegistrationRequest.LastName,
                         Email = userRegistrationRequest.Email,
                         UserName = userRegistrationRequest.Email,
                     };

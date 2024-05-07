@@ -9,10 +9,11 @@ using Newtonsoft.Json;
 
 namespace AccountProvider.Functions
 {
-    public class SignIn(ILogger<SignIn> logger, SignInManager<UserAccount> signInManager)
+    public class SignIn(ILogger<SignIn> logger, SignInManager<UserAccount> signInManager, UserManager<UserAccount> userManager)
     {
         private readonly ILogger<SignIn> _logger = logger;
         private readonly SignInManager<UserAccount> _signInManager = signInManager;
+        private readonly UserManager<UserAccount> _userManager = userManager;
 
         [Function("SignIn")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
@@ -44,16 +45,18 @@ namespace AccountProvider.Functions
                 {
                    try
                    {
-                        var result = await _signInManager.PasswordSignInAsync(signInRequest.Email, signInRequest.Password, signInRequest.RememberMe, false);
+                        var userAccount = await _userManager.FindByEmailAsync(signInRequest.Email);
+                        var result = await _signInManager.CheckPasswordSignInAsync(userAccount, signInRequest.Password, false);
                         if(result.Succeeded)
                         {
-                            //hämta token från token provider, säkrast med en servicebus
+                            //hämta token från tokenProvider, säkrast med en servicebus
                             return new OkObjectResult("accesstoken");
                         }
                         else
                         {
                             return new UnauthorizedResult();
                         }
+
                    }
                    catch(Exception ex)
                    {
